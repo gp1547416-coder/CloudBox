@@ -1,0 +1,9 @@
+{
+  "name": "cloudbox-vercel-backend",
+  "version": "1.0.0",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13"
+  }
+}
