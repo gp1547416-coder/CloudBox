@@ -253,8 +253,8 @@
         .preview-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; box-shadow: var(--shadow-md); }
         .preview-iframe { width: 100%; height: 100%; border: 1px solid var(--border-color); background-color: #fff; border-radius: 6px; }
         .preview-text { width: 100%; height: 100%; font-family: 'Courier New', Courier, monospace; font-size: 14px; padding: 16px; border: 1px solid var(--border-color); border-radius: 6px; background-color: #1e293b; color: #f8fafc; resize: none; outline: none; }
-        .preview-fallback { text-align: center; color: var(--text-muted); }
-        .preview-fallback i { font-size: 56px; color: #cbd5e1; margin-bottom: 16px; }
+        .preview-fallback { text-align: center; color: var(--text-muted); padding: 20px; max-width: 500px; }
+        .preview-fallback i { font-size: 64px; margin-bottom: 16px; display: block; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -376,7 +376,7 @@
                 <div class="upload-zone" id="uploadZone">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                     <p style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">Drag & Drop files here or click to browse</p>
-                    <p style="color: var(--text-muted); font-size: 13px;">Supports HTML webpage previews, Images, PDFs, and Code files.</p>
+                    <p style="color: var(--text-muted); font-size: 13px;">Supports HTML webpage previews, Images, PDFs, Code, and .EXE installer packages.</p>
                     <input type="file" id="hiddenFileInput" class="hidden" multiple>
                 </div>
 
@@ -551,9 +551,10 @@
 
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
+                const nameToLower = file.name.toLowerCase();
                 
-                // Read as text for text/html code previewing, or read as DataURL for bin types
-                const isTextType = file.type.startsWith('text/') || file.name.endsWith('.js') || file.name.endsWith('.css') || file.name.endsWith('.json');
+                // .exe, images, and pdfs must be read as binary DataURL payloads, text files can be parsed as strings
+                const isTextType = (file.type.startsWith('text/') || nameToLower.endsWith('.js') || nameToLower.endsWith('.css') || nameToLower.endsWith('.json')) && !nameToLower.endsWith('.exe');
                 
                 reader.onload = function(event) {
                     const fileContentPayload = event.target.result;
@@ -562,7 +563,7 @@
                         id: 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                         name: file.name,
                         size: file.size,
-                        type: file.type || 'application/octet-stream',
+                        type: nameToLower.endsWith('.exe') ? 'application/x-msdownload' : (file.type || 'application/octet-stream'),
                         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                         dataUrl: isTextType ? null : fileContentPayload,
                         textRaw: isTextType ? fileContentPayload : null
@@ -582,7 +583,7 @@
         }
 
         function removeFileRecord(id, event) {
-            if(event) event.stopPropagation(); // Stop clicking card background open file preview triggers
+            if(event) event.stopPropagation();
             userFiles = userFiles.filter(f => f.id !== id);
             localStorage.setItem(`cloudbox_files_${savedEmail}`, JSON.stringify(userFiles));
             updateFileDisplayGrid();
@@ -598,10 +599,12 @@
 
         // Returns specialized system visual representations
         function getIconForFileType(fileName, type) {
+            const nameLower = fileName.toLowerCase();
+            if (nameLower.endsWith('.exe')) return '<i class="fa-solid fa-laptop-code file-icon" style="color: #10b981;"></i>'; // Green executable package icon
             if (type.startsWith('image/')) return '<i class="fa-regular fa-image file-icon" style="color: #ec4899;"></i>';
-            if (fileName.endsWith('.html') || fileName.endsWith('.htm')) return '<i class="fa-brands fa-html5 file-icon" style="color: #f97316;"></i>';
+            if (nameLower.endsWith('.html') || nameLower.endsWith('.htm')) return '<i class="fa-brands fa-html5 file-icon" style="color: #f97316;"></i>';
             if (type === 'application/pdf') return '<i class="fa-regular fa-file-pdf file-icon" style="color: #ef4444;"></i>';
-            if (type.startsWith('text/') || fileName.endsWith('.js') || fileName.endsWith('.css') || fileName.endsWith('.json')) {
+            if (type.startsWith('text/') || nameLower.endsWith('.js') || nameLower.endsWith('.css') || nameLower.endsWith('.json')) {
                 return '<i class="fa-regular fa-file-code file-icon" style="color: #06b6d4;"></i>';
             }
             return '<i class="fa-regular fa-file-lines file-icon" style="color: #3b82f6;"></i>';
@@ -625,7 +628,6 @@
                 combinedByteWeight += file.size;
                 const fileIcon = getIconForFileType(file.name, file.type);
                 
-                // Create object download link representation
                 const dynamicHref = file.dataUrl ? file.dataUrl : 'data:text/plain;charset=utf-8,' + encodeURIComponent(file.textRaw);
 
                 const card = document.createElement('div');
@@ -641,7 +643,7 @@
                     <div class="file-name" title="${file.name}">${file.name}</div>
                     <div class="file-meta">${file.date} • ${formatBytes(file.size)}</div>
                     <div class="file-actions">
-                        <span class="btn-action"><i class="fa-solid fa-eye"></i> View</span>
+                        <span class="btn-action"><i class="fa-solid fa-circle-info"></i> Details</span>
                         <a href="${dynamicHref}" download="${file.name}" class="btn-action" onclick="event.stopPropagation();">
                             <i class="fa-solid fa-circle-down"></i> Save
                         </a>
@@ -661,41 +663,52 @@
             if (!file) return;
 
             previewModalTitle.textContent = file.name;
-            previewModalBody.innerHTML = ''; // Wipe container clean
+            previewModalBody.innerHTML = ''; 
             
             const type = file.type;
             const name = file.name;
+            const nameToLower = name.toLowerCase();
 
-            // Type Route Group 1: Native Images
-            if (type.startsWith('image/')) {
+            // Type Route Group 1: Native Windows Executables
+            if (nameToLower.endsWith('.exe')) {
+                previewModalBody.innerHTML = `
+                    <div class="preview-fallback">
+                        <i class="fa-solid fa-laptop-code" style="color: #10b981;"></i>
+                        <h3 style="margin-bottom:8px; color:var(--text-main); font-size: 18px;">Windows Executable (.exe)</h3>
+                        <p style="font-size:14px; margin-bottom:16px; line-height: 1.5;">This is a binary installer payload package. Web environments cannot execute desktop software natively due to safety filters, but your file is stored securely inside your vault namespace.</p>
+                        <a href="${file.dataUrl}" download="${name}" class="btn-submit" style="width:max-content; margin:0 auto; padding:10px 24px; background-color: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
+                            <i class="fa-solid fa-download"></i> Download Executable to Run
+                        </a>
+                    </div>`;
+            }
+            // Type Route Group 2: Native Images
+            else if (type.startsWith('image/')) {
                 const img = document.createElement('img');
                 img.src = file.dataUrl;
                 img.className = 'preview-img';
                 previewModalBody.appendChild(img);
             } 
-            // Type Route Group 2: Executable live HTML views
-            else if (name.endsWith('.html') || name.endsWith('.htm')) {
+            // Type Route Group 3: Executable live HTML views
+            else if (nameToLower.endsWith('.html') || nameToLower.endsWith('.htm')) {
                 const iframe = document.createElement('iframe');
                 iframe.className = 'preview-iframe';
                 previewModalBody.appendChild(iframe);
                 
-                // Write text content stream safely inside isolated runtime container environment
                 const targetDoc = iframe.contentDocument || iframe.contentWindow.document;
                 targetDoc.open();
                 targetDoc.write(file.textRaw || '');
                 targetDoc.close();
             } 
-            // Type Route Group 3: Dynamic PDFs
+            // Type Route Group 4: Dynamic PDFs
             else if (type === 'application/pdf') {
                 const objectNode = document.createElement('object');
                 objectNode.data = file.dataUrl;
                 objectNode.type = 'application/pdf';
                 objectNode.className = 'preview-iframe';
-                // Fallback inside object tag if embed breaks
                 objectNode.innerHTML = `<p class="preview-fallback">Direct browser PDF viewing missing. Please save file to access layout manually.</p>`;
                 previewModalBody.appendChild(objectNode);
             }
-            // Type Route Group 4: Text Strings / Development Files
+            // Type Route Group 5: Text Strings / Development Files
             else if (file.textRaw !== null || type.startsWith('text/')) {
                 const txtArea = document.createElement('textarea');
                 txtArea.className = 'preview-text';
@@ -703,14 +716,15 @@
                 txtArea.value = file.textRaw || '';
                 previewModalBody.appendChild(txtArea);
             }
-            // Fallback for non-renderable binaries
+            // Fallback for generic non-renderable binaries
             else {
+                const dynamicHref = file.dataUrl ? file.dataUrl : 'data:text/plain;charset=utf-8,' + encodeURIComponent(file.textRaw);
                 previewModalBody.innerHTML = `
                     <div class="preview-fallback">
-                        <i class="fa-regular fa-file-excel"></i>
+                        <i class="fa-regular fa-file"></i>
                         <h3 style="margin-bottom:8px; color:var(--text-main);">No Live Preview Available</h3>
                         <p style="font-size:14px; margin-bottom:16px;">Direct viewing is not supported for this file type (${type}).</p>
-                        <a href="${file.dataUrl}" download="${file.name}" class="btn-submit" style="width:max-content; margin:0 auto; padding:10px 20px;">
+                        <a href="${dynamicHref}" download="${name}" class="btn-submit" style="width:max-content; margin:0 auto; padding:10px 20px;">
                             <i class="fa-solid fa-download"></i> Download to Device
                         </a>
                     </div>`;
@@ -719,7 +733,6 @@
             previewModal.classList.remove('hidden');
         }
 
-        // Close View Actions
         closePreviewBtn.addEventListener('click', () => previewModal.classList.add('hidden'));
         previewModal.addEventListener('click', (e) => {
             if (e.target === previewModal) previewModal.classList.add('hidden');
