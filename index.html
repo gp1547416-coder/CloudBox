@@ -23,15 +23,9 @@
             --border-color: #e2e8f0;
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
             --radius: 12px;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            
-            /* Alert Colors */
-            --alert-bg: #fff5f5;
-            --alert-border: #fecaca;
-            --alert-text: #991b1b;
-            --alert-accent: #dc2626;
         }
 
         * {
@@ -53,67 +47,7 @@
         }
 
         /* ========================================================
-           ANIMATED NOTIFICATION SYSTEM
-           ======================================================== */
-        .notification-toast {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            background-color: var(--bg-card);
-            border-left: 5px solid var(--alert-accent);
-            border-top: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            width: 380px;
-            padding: 16px 20px;
-            display: flex;
-            gap: 14px;
-            z-index: 9999;
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-            opacity: 0;
-        }
-
-        .notification-toast.show { transform: translateX(0); opacity: 1; }
-        .notification-toast.hide { transform: translateX(120%); opacity: 0; }
-
-        .notification-icon {
-            color: var(--alert-accent);
-            font-size: 20px;
-            margin-top: 2px;
-            animation: pulse-icon 2s infinite;
-        }
-
-        .notification-content { flex: 1; }
-        .notification-title { font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 4px; }
-        .notification-message { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-
-        .notification-close-btn {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 16px;
-            align-self: flex-start;
-            margin-top: -2px;
-            margin-right: -6px;
-            padding: 4px;
-            border-radius: 4px;
-            transition: var(--transition);
-        }
-
-        .notification-close-btn:hover { color: #64748b; background-color: #f1f5f9; }
-
-        @keyframes pulse-icon {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); color: #b91c1c; }
-            100% { transform: scale(1); }
-        }
-
-        /* ========================================================
-           SHARED AUTHENTICATION STYLES (Sign Up & Verification)
+           SHARED AUTHENTICATION STYLES
            ======================================================== */
         .auth-view {
             display: flex;
@@ -215,7 +149,7 @@
         }
 
         .error-message {
-            color: var(--alert-accent);
+            color: #dc2626;
             font-size: 13px;
             font-weight: 500;
             text-align: center;
@@ -224,7 +158,7 @@
         }
 
         /* ========================================================
-           SCREEN 3: DASHBOARD STORAGE VIEW
+           USER DASHBOARD SCREEN
            ======================================================== */
         .dashboard-view {
             display: flex;
@@ -265,7 +199,7 @@
         .storage-counter { background-color: var(--bg-main); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); }
         .storage-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
         .progress-bar { height: 6px; background-color: var(--border-color); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-        .progress-fill { width: 100%; height: 100%; background-color: var(--alert-accent); border-radius: 3px; }
+        .progress-fill { width: 0%; height: 100%; background-color: var(--primary); border-radius: 3px; transition: width 0.3s ease; }
 
         main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         header { background-color: var(--bg-sidebar); padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); min-height: 70px; }
@@ -273,26 +207,33 @@
         .search-bar { position: relative; width: 350px; }
         .search-bar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .search-bar input { width: 100%; padding: 10px 14px 10px 40px; border: 1px solid var(--border-color); border-radius: var(--radius); background-color: var(--bg-main); font-size: 14px; outline: none; transition: var(--transition); }
-        .search-bar input:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
         .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative; }
         .user-avatar { width: 38px; height: 38px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; border: 2px solid var(--border-color); }
         .content-body { padding: 40px; max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
         .welcome-section { display: flex; align-items: center; justify-content: space-between; }
-        .btn-primary { background-color: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: var(--radius); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); transition: var(--transition); }
         
-        .upload-zone { border: 2px dashed #cbd5e1; background-color: var(--bg-card); border-radius: var(--radius); padding: 32px; text-align: center; cursor: pointer; transition: var(--transition); }
-        .upload-zone i { font-size: 36px; color: var(--primary); margin-bottom: 12px; }
+        /* FILE UPLOAD ZONE */
+        .upload-zone { border: 2px dashed #cbd5e1; background-color: var(--bg-card); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: var(--transition); position: relative; }
+        .upload-zone:hover { border-color: var(--primary); background-color: var(--primary-light); }
+        .upload-zone i { font-size: 42px; color: var(--primary); margin-bottom: 12px; }
+        
         .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
-        .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         
-        .folder-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-sm); transition: var(--transition); cursor: pointer; }
-        .folder-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #93c5fd; }
-        .folder-header { display: flex; justify-content: space-between; align-items: center; }
-        .folder-icon { font-size: 28px; color: #3b82f6; }
-        .more-options { color: var(--text-muted); }
-        .folder-name { font-weight: 600; font-size: 15px; }
-        .folder-meta { font-size: 13px; color: var(--text-muted); }
+        /* COMPONENT FILE GRID */
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .file-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; }
+        .file-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #93c5fd; }
+        .file-header { display: flex; justify-content: space-between; align-items: center; }
+        .file-icon { font-size: 32px; color: #2563eb; }
+        .file-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+        .file-meta { font-size: 12px; color: var(--text-muted); }
+        
+        .btn-delete { background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; border-radius: 4px; transition: var(--transition); }
+        .btn-delete:hover { background-color: #ffeeef; }
+
+        .btn-download { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; margin-top: 8px; width: max-content; }
+        .btn-download:hover { text-decoration: underline; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -302,28 +243,12 @@
 </head>
 <body>
 
-    <div class="notification-toast" id="storageAlert">
-        <div class="notification-icon">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-title">CloudBox Alert</div>
-            <div class="notification-message">You have used up all the storage. Please upgrade your plan or free up space.</div>
-        </div>
-        <button class="notification-close-btn" id="closeAlertBtn" title="Dismiss Alert">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    </div>
-
     <div class="auth-view" id="authView">
         <div class="auth-container">
-            <div class="logo-center">
-                <i class="fa-solid fa-box-open"></i>
-                <span>CloudBox</span>
-            </div>
+            <div class="logo-center"><i class="fa-solid fa-box-open"></i><span>CloudBox</span></div>
             <div class="auth-header">
                 <h1>Create your account</h1>
-                <p>Get 10 GB of free, highly secure cloud storage space.</p>
+                <p>Get 0 GB of secure data storage space instantly.</p>
             </div>
 
             <form id="signupForm">
@@ -349,8 +274,7 @@
                     </div>
                 </div>
                 <button type="submit" class="btn-submit" id="submitBtn">
-                    <span>Create Account</span>
-                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>Create Account</span><i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
         </div>
@@ -358,10 +282,7 @@
 
     <div class="auth-view hidden" id="verifyView">
         <div class="auth-container">
-            <div class="logo-center">
-                <i class="fa-solid fa-shield-halved"></i>
-                <span>Security Verification</span>
-            </div>
+            <div class="logo-center"><i class="fa-solid fa-shield-halved"></i><span>Verification</span></div>
             <div class="auth-header">
                 <h1>Verify your email</h1>
                 <p>We sent a 9-digit security code to <strong id="sentEmailTarget" style="color: var(--primary);">user@email.com</strong>.</p>
@@ -374,21 +295,16 @@
                 </div>
                 
                 <div class="error-message hidden" id="verifyError">
-                    <i class="fa-solid fa-circle-exclamation"></i> Invalid security code. Please check and try again.
+                    <i class="fa-solid fa-circle-exclamation"></i> Invalid security code. Please try again.
                 </div>
 
                 <button type="submit" class="btn-submit" id="verifySubmitBtn">
-                    <span>Verify & Open Dashboard</span>
-                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Verify & Open Dashboard</span><i class="fa-solid fa-circle-check"></i>
                 </button>
             </form>
-
-            <div class="auth-footer">
-                Didn't get the code? <a href="#" id="resendCodeLink">Resend Code</a>
-            </div>
+            <div class="auth-footer">Didn't get the code? <a href="#" id="resendCodeLink">Resend Code</a></div>
         </div>
     </div>
-
 
     <div class="dashboard-view hidden" id="dashboardView">
         <aside>
@@ -403,13 +319,13 @@
                 </ul>
             </div>
 
-            <div class="storage-counter" style="border-color: var(--alert-border);">
+            <div class="storage-counter">
                 <div class="storage-title">
-                    <span style="color: var(--alert-accent);">Storage Full</span>
-                    <span style="color: var(--alert-accent); font-weight:700;">10 GB of 10 GB</span>
+                    <span>Storage Capacity</span>
+                    <span style="font-weight:700;">0 GB of 0 GB</span>
                 </div>
-                <div class="progress-bar"><div class="progress-fill"></div></div>
-                <p style="font-size: 12px; color: var(--alert-accent); font-weight: 500;">100% space used</p>
+                <div class="progress-bar"><div class="progress-fill" id="storageProgress"></div></div>
+                <p style="font-size: 12px; color: var(--text-muted);" id="storageLabel">0 B uploaded</p>
             </div>
         </aside>
 
@@ -417,9 +333,9 @@
             <header>
                 <div class="search-bar">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Search your cloud storage...">
+                    <input type="text" placeholder="Search files...">
                 </div>
-                <div class="user-profile" id="userProfileDropdown" title="Click to log out">
+                <div class="user-profile" id="userProfileDropdown" title="Log out">
                     <div class="user-avatar" id="avatarBadge">U</div>
                     <span style="font-weight: 500; font-size: 14px;" id="profileName">User Name</span>
                     <i class="fa-solid fa-right-from-bracket" style="font-size: 13px; color: var(--text-muted); margin-left: 4px;"></i>
@@ -429,34 +345,22 @@
             <div class="content-body">
                 <div class="welcome-section">
                     <div>
-                        <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">Welcome back, <span id="welcomeName">User</span>!</h1>
-                        <p style="color: var(--text-muted); font-size: 14px;">Access and manage your cloud data securely.</p>
+                        <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">Welcome, <span id="welcomeName">User</span>!</h1>
+                        <p style="color: var(--text-muted); font-size: 14px;">Your fully isolated secure user storage vault.</p>
                     </div>
-                    <button class="btn-primary" style="background-color: var(--text-muted); cursor: not-allowed;" onclick="alert('Cannot upload. Storage is full!')">
-                        <i class="fa-solid fa-ban"></i> Upload Blocked
-                    </button>
                 </div>
 
-                <div class="upload-zone" style="background-color: #fff1f2; border-color: var(--alert-border);" onclick="alert('Cannot upload. Storage is full!')">
-                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--alert-accent);"></i>
-                    <p style="font-weight: 600; font-size: 15px; margin-bottom: 4px; color: var(--alert-accent);">Upload Disabled</p>
-                    <p style="color: #b91c1c; font-size: 13px;">You must clear files or upgrade your plan to sync more data.</p>
+                <div class="upload-zone" id="uploadZone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <p style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">Drag & Drop files here or click to browse</p>
+                    <p style="color: var(--text-muted); font-size: 13px;">Files sync immediately into browser persistent runtime memory.</p>
+                    <input type="file" id="hiddenFileInput" class="hidden" multiple>
                 </div>
 
                 <div>
-                    <h2 class="section-title">Recent Folders</h2>
-                    <div class="folder-grid">
-                        <div class="folder-card">
-                            <div class="folder-header"><i class="fa-solid fa-folder folder-icon"></i></div>
-                            <div class="folder-name">Work Projects</div>
-                            <div class="folder-meta">124 files • 4.8 GB</div>
+                    <h2 class="section-title">Your Files</h2>
+                    <div class="file-grid" id="fileGridContainer">
                         </div>
-                        <div class="folder-card">
-                            <div class="folder-header"><i class="fa-solid fa-folder folder-icon"></i></div>
-                            <div class="folder-name">Design Assets</div>
-                            <div class="folder-meta">45 files • 2.1 GB</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </main>
@@ -467,8 +371,13 @@
         let savedUserName = "";
         let savedEmail = "";
         let savedInitials = "";
+        let userFiles = [];
 
-        // UI DOM Elements
+        // UI DOM Access Links
+        const authView = document.getElementById('authView');
+        const verifyView = document.getElementById('verifyView');
+        const dashboardView = document.getElementById('dashboardView');
+        
         const signupForm = document.getElementById('signupForm');
         const verifyForm = document.getElementById('verifyForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -476,71 +385,85 @@
         const codeField = document.getElementById('codeField');
         const verifyError = document.getElementById('verifyError');
         
-        const authView = document.getElementById('authView');
-        const verifyView = document.getElementById('verifyView');
-        const dashboardView = document.getElementById('dashboardView');
-        const storageAlert = document.getElementById('storageAlert');
+        const uploadZone = document.getElementById('uploadZone');
+        const hiddenFileInput = document.getElementById('hiddenFileInput');
+        const fileGridContainer = document.getElementById('fileGridContainer');
+        const storageLabel = document.getElementById('storageLabel');
 
-        // Generates an XXX-XXX-XXX code string
+        // ==========================================
+        // AUTO-SIGN IN REDIRECT INTERCEPTOR
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const sessionActive = localStorage.getItem('cloudbox_session_active');
+            if (sessionActive === 'true') {
+                savedUserName = localStorage.getItem('cloudbox_user_name') || 'User';
+                savedEmail = localStorage.getItem('cloudbox_user_email') || '';
+                savedInitials = localStorage.getItem('cloudbox_user_initials') || 'U';
+                
+                // Read existing database array
+                const storedFiles = localStorage.getItem(`cloudbox_files_${savedEmail}`);
+                if (storedFiles) {
+                    userFiles = JSON.parse(storedFiles);
+                }
+
+                // Smooth bypass directly into active framework state
+                authView.classList.add('hidden');
+                verifyView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
+                
+                renderDashboardData();
+            }
+        });
+
+        function renderDashboardData() {
+            document.getElementById('profileName').textContent = savedUserName;
+            document.getElementById('welcomeName').textContent = savedUserName.split(' ')[0];
+            document.getElementById('avatarBadge').textContent = savedInitials;
+            updateFileDisplayGrid();
+        }
+
+        // Helper: Generates XXX-XXX-XXX token format
         function generateNineDigitCode() {
             const rawNumber = Math.floor(100000000 + Math.random() * 900000000).toString();
             return `${rawNumber.substring(0,3)}-${rawNumber.substring(3,6)}-${rawNumber.substring(6,9)}`;
         }
 
-        // Live formatting for input dashes
+        // Live input layout formatting mask
         codeField.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 9) value = value.substring(0, 9);
-            
             let formatted = "";
             if (value.length > 0) formatted += value.substring(0, 3);
             if (value.length > 3) formatted += '-' + value.substring(3, 6);
             if (value.length > 6) formatted += '-' + value.substring(6, 9);
-            
             e.target.value = formatted;
         });
 
-        // Email API Serverless Dispatch Handler targeting Vercel Routing
+        // Backend Integration Endpoint Connector
         function dispatchVerificationEmail(targetEmail, targetName, verificationCode) {
             fetch('/api/send-code', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    to_email: targetEmail,
-                    passcode: verificationCode
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ to_email: targetEmail, passcode: verificationCode })
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    console.log(`Live absolute deployment serverless function completed for ${targetEmail}.`);
-                } else {
-                    console.error("Vercel production function failure processing:", data.error);
-                }
+                if (data.success) console.log("Verification email dispatched through Vercel serverless worker.");
             })
-            .catch((error) => {
-                console.error("Connection failed:", error);
-                alert("Could not talk to the cloud server configuration.");
-            });
+            .catch(err => console.error("API link unreachable:", err));
         }
 
-        // STEP 1: Sign up submit
+        // STEP 1: Registration form processing
         signupForm.addEventListener('submit', function(e) {
             e.preventDefault();
-
             savedUserName = document.getElementById('registerName').value.trim() || 'User';
-            savedEmail = document.getElementById('registerEmail').value.trim();
+            savedEmail = document.getElementById('registerEmail').value.trim().toLowerCase();
             savedInitials = savedUserName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2);
 
-            submitBtn.innerHTML = '<span>Processing Code...</span> <i class="fa-solid fa-circle-notch fa-spin"></i>';
-            submitBtn.style.opacity = '0.75';
+            submitBtn.innerHTML = '<span>Sending Code...</span> <i class="fa-solid fa-circle-notch fa-spin"></i>';
             submitBtn.style.pointerEvents = 'none';
 
             currentGeneratedCode = generateNineDigitCode();
-
-            // Fire off background async endpoint hit
             dispatchVerificationEmail(savedEmail, savedUserName, currentGeneratedCode);
 
             setTimeout(() => {
@@ -550,40 +473,125 @@
             }, 1000);
         });
 
-        // STEP 2: Verify Code
+        // STEP 2: Handle secure verification check 
         verifyForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const userEnteredCode = codeField.value.trim();
-
-            if (userEnteredCode === currentGeneratedCode) {
+            if (codeField.value.trim() === currentGeneratedCode) {
                 verifyError.classList.add('hidden');
-                verifySubmitBtn.innerHTML = '<span>Verifying...</span> <i class="fa-solid fa-circle-notch fa-spin"></i>';
-                verifySubmitBtn.style.opacity = '0.75';
+                verifySubmitBtn.innerHTML = '<span>Configuring Dashboard...</span> <i class="fa-solid fa-circle-notch fa-spin"></i>';
                 verifySubmitBtn.style.pointerEvents = 'none';
 
-                setTimeout(() => {
-                    document.getElementById('profileName').textContent = savedUserName;
-                    document.getElementById('welcomeName').textContent = savedUserName.split(' ')[0];
-                    document.getElementById('avatarBadge').textContent = savedInitials || 'U';
+                // Save persistent user profile values inside device runtime
+                localStorage.setItem('cloudbox_session_active', 'true');
+                localStorage.setItem('cloudbox_user_name', savedUserName);
+                localStorage.setItem('cloudbox_user_email', savedEmail);
+                localStorage.setItem('cloudbox_user_initials', savedInitials);
 
+                // Fetch database allocations for user namespace
+                const storedFiles = localStorage.getItem(`cloudbox_files_${savedEmail}`);
+                userFiles = storedFiles ? JSON.parse(storedFiles) : [];
+
+                setTimeout(() => {
                     verifyView.classList.add('hidden');
                     dashboardView.classList.remove('hidden');
-
-                    setTimeout(() => {
-                        storageAlert.classList.add('show');
-                    }, 1500);
-
+                    renderDashboardData();
                 }, 1000);
             } else {
                 verifyError.classList.remove('hidden');
                 codeField.focus();
-                codeField.style.borderColor = 'var(--alert-accent)';
-                setTimeout(() => codeField.style.borderColor = '', 500);
             }
         });
 
-        // Resend request loop hook logic
+        // ==========================================
+        // DYNAMIC PERSISTENT STORAGE CONSOLE LOGIC
+        // ==========================================
+        uploadZone.addEventListener('click', () => hiddenFileInput.click());
+
+        hiddenFileInput.addEventListener('change', (e) => handleIncomingFiles(e.target.files));
+        uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.style.borderColor = 'var(--primary)'; });
+        uploadZone.addEventListener('dragleave', () => uploadZone.style.borderColor = '');
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '';
+            handleIncomingFiles(e.dataTransfer.files);
+        });
+
+        function handleIncomingFiles(files) {
+            if (!files.length) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const newFileRecord = {
+                        id: 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                        name: file.name,
+                        size: file.size,
+                        type: file.type || 'application/octet-stream',
+                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                        dataUrl: event.target.result // Base64 Raw Data Payload String
+                    };
+
+                    userFiles.push(newFileRecord);
+                    localStorage.setItem(`cloudbox_files_${savedEmail}`, JSON.stringify(userFiles));
+                    updateFileDisplayGrid();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeFileRecord(id) {
+            userFiles = userFiles.filter(f => f.id !== id);
+            localStorage.setItem(`cloudbox_files_${savedEmail}`, JSON.stringify(userFiles));
+            updateFileDisplayGrid();
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateFileDisplayGrid() {
+            fileGridContainer.innerHTML = '';
+            let combinedByteWeight = 0;
+
+            if (userFiles.length === 0) {
+                fileGridContainer.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px;">
+                        <i class="fa-regular fa-folder-open" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
+                        No files uploaded yet. Drag one above to get started!
+                    </div>`;
+                storageLabel.textContent = "0 B uploaded";
+                return;
+            }
+
+            userFiles.forEach(file => {
+                combinedByteWeight += file.size;
+
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                card.innerHTML = `
+                    <div class="file-header">
+                        <i class="fa-regular fa-file-lines style="font-size:24px;"></i>
+                        <button class="btn-delete" onclick="removeFileRecord('${file.id}')" title="Delete File">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <div class="file-name" title="${file.name}">${file.name}</div>
+                    <div class="file-meta">${file.date} • ${formatBytes(file.size)}</div>
+                    <a href="${file.dataUrl}" download="${file.name}" class="btn-download">
+                        <i class="fa-solid fa-circle-down"></i> Download
+                    </a>
+                `;
+                fileGridContainer.appendChild(card);
+            });
+
+            storageLabel.textContent = `${formatBytes(combinedByteWeight)} uploaded`;
+        }
+
+        // Resend Verification Code Token link
         document.getElementById('resendCodeLink').addEventListener('click', (e) => {
             e.preventDefault();
             currentGeneratedCode = generateNineDigitCode();
@@ -591,27 +599,16 @@
             alert(`A fresh security token has been dispatched to ${savedEmail}.`);
         });
 
-        // UI Helpers
-        document.getElementById('closeAlertBtn').addEventListener('click', () => {
-            storageAlert.classList.remove('show');
-            storageAlert.classList.add('hide');
-            setTimeout(() => storageAlert.classList.remove('hide'), 400);
-        });
-
+        // Session Destruction / Logout Routine
         document.getElementById('userProfileDropdown').addEventListener('click', () => {
-            if(confirm("Do you want to log out?")) {
-                submitBtn.innerHTML = '<span>Create Account</span> <i class="fa-solid fa-arrow-right"></i>';
-                submitBtn.style.opacity = '1';
-                submitBtn.style.pointerEvents = 'auto';
-                verifySubmitBtn.innerHTML = '<span>Verify & Open Dashboard</span> <i class="fa-solid fa-circle-check"></i>';
-                verifySubmitBtn.style.opacity = '1';
-                verifySubmitBtn.style.pointerEvents = 'auto';
-                signupForm.reset();
-                verifyForm.reset();
-                verifyError.classList.add('hidden');
-                storageAlert.classList.remove('show');
-                dashboardView.classList.add('hidden');
-                authView.classList.remove('hidden');
+            if(confirm("Do you want to secure sign out?")) {
+                localStorage.removeItem('cloudbox_session_active');
+                localStorage.removeItem('cloudbox_user_name');
+                localStorage.removeItem('cloudbox_user_email');
+                localStorage.removeItem('cloudbox_user_initials');
+                
+                // Soft reload to clear dynamic variables
+                window.location.reload();
             }
         });
     </script>
