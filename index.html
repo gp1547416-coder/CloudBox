@@ -222,23 +222,46 @@
         
         /* COMPONENT FILE GRID */
         .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .file-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; }
+        .file-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; cursor: pointer; }
         .file-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #93c5fd; }
         .file-header { display: flex; justify-content: space-between; align-items: center; }
         .file-icon { font-size: 32px; color: #2563eb; }
         .file-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
         .file-meta { font-size: 12px; color: var(--text-muted); }
         
-        .btn-delete { background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; border-radius: 4px; transition: var(--transition); }
+        .btn-delete { background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; border-radius: 4px; transition: var(--transition); z-index: 5; }
         .btn-delete:hover { background-color: #ffeeef; }
 
-        .btn-download { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; margin-top: 8px; width: max-content; }
-        .btn-download:hover { text-decoration: underline; }
+        .file-actions { display: flex; gap: 12px; align-items: center; margin-top: 8px; }
+        .btn-action { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .btn-action:hover { text-decoration: underline; }
+
+        /* ========================================================
+           LIGHTBOX PREVIEW MODAL SYSTEM
+           ======================================================== */
+        .preview-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: modalFadeIn 0.25s ease; }
+        .preview-window { background-color: #ffffff; width: 90%; max-width: 900px; height: 80vh; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; overflow: hidden; animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        .preview-topbar { padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background-color: #fafbfe; }
+        .preview-title { font-weight: 600; font-size: 16px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+        .close-preview-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+        .close-preview-btn:hover { color: #000; transform: scale(1.1); }
+        
+        .preview-body { flex: 1; overflow: auto; padding: 20px; display: flex; align-items: center; justify-content: center; background-color: #f8fafc; }
+        
+        /* Render Target Layout Formats */
+        .preview-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; box-shadow: var(--shadow-md); }
+        .preview-iframe { width: 100%; height: 100%; border: 1px solid var(--border-color); background-color: #fff; border-radius: 6px; }
+        .preview-text { width: 100%; height: 100%; font-family: 'Courier New', Courier, monospace; font-size: 14px; padding: 16px; border: 1px solid var(--border-color); border-radius: 6px; background-color: #1e293b; color: #f8fafc; resize: none; outline: none; }
+        .preview-fallback { text-align: center; color: var(--text-muted); }
+        .preview-fallback i { font-size: 56px; color: #cbd5e1; margin-bottom: 16px; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalScaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -353,7 +376,7 @@
                 <div class="upload-zone" id="uploadZone">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                     <p style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">Drag & Drop files here or click to browse</p>
-                    <p style="color: var(--text-muted); font-size: 13px;">Files sync immediately into browser persistent runtime memory.</p>
+                    <p style="color: var(--text-muted); font-size: 13px;">Supports HTML webpage previews, Images, PDFs, and Code files.</p>
                     <input type="file" id="hiddenFileInput" class="hidden" multiple>
                 </div>
 
@@ -364,6 +387,17 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div class="preview-modal hidden" id="previewModal">
+        <div class="preview-window">
+            <div class="preview-topbar">
+                <div class="preview-title" id="previewModalTitle">file_name.html</div>
+                <button class="close-preview-btn" id="closePreviewBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="preview-body" id="previewModalBody">
+                </div>
+        </div>
     </div>
 
     <script>
@@ -390,6 +424,11 @@
         const fileGridContainer = document.getElementById('fileGridContainer');
         const storageLabel = document.getElementById('storageLabel');
 
+        const previewModal = document.getElementById('previewModal');
+        const previewModalTitle = document.getElementById('previewModalTitle');
+        const previewModalBody = document.getElementById('previewModalBody');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+
         // ==========================================
         // AUTO-SIGN IN REDIRECT INTERCEPTOR
         // ==========================================
@@ -400,13 +439,11 @@
                 savedEmail = localStorage.getItem('cloudbox_user_email') || '';
                 savedInitials = localStorage.getItem('cloudbox_user_initials') || 'U';
                 
-                // Read existing database array
                 const storedFiles = localStorage.getItem(`cloudbox_files_${savedEmail}`);
                 if (storedFiles) {
                     userFiles = JSON.parse(storedFiles);
                 }
 
-                // Smooth bypass directly into active framework state
                 authView.classList.add('hidden');
                 verifyView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
@@ -422,13 +459,11 @@
             updateFileDisplayGrid();
         }
 
-        // Helper: Generates XXX-XXX-XXX token format
         function generateNineDigitCode() {
             const rawNumber = Math.floor(100000000 + Math.random() * 900000000).toString();
             return `${rawNumber.substring(0,3)}-${rawNumber.substring(3,6)}-${rawNumber.substring(6,9)}`;
         }
 
-        // Live input layout formatting mask
         codeField.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 9) value = value.substring(0, 9);
@@ -439,7 +474,6 @@
             e.target.value = formatted;
         });
 
-        // Backend Integration Endpoint Connector
         function dispatchVerificationEmail(targetEmail, targetName, verificationCode) {
             fetch('/api/send-code', {
                 method: 'POST',
@@ -448,12 +482,11 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) console.log("Verification email dispatched through Vercel serverless worker.");
+                if (data.success) console.log("Verification email dispatched successfully.");
             })
             .catch(err => console.error("API link unreachable:", err));
         }
 
-        // STEP 1: Registration form processing
         signupForm.addEventListener('submit', function(e) {
             e.preventDefault();
             savedUserName = document.getElementById('registerName').value.trim() || 'User';
@@ -473,7 +506,6 @@
             }, 1000);
         });
 
-        // STEP 2: Handle secure verification check 
         verifyForm.addEventListener('submit', function(e) {
             e.preventDefault();
             if (codeField.value.trim() === currentGeneratedCode) {
@@ -481,13 +513,11 @@
                 verifySubmitBtn.innerHTML = '<span>Configuring Dashboard...</span> <i class="fa-solid fa-circle-notch fa-spin"></i>';
                 verifySubmitBtn.style.pointerEvents = 'none';
 
-                // Save persistent user profile values inside device runtime
                 localStorage.setItem('cloudbox_session_active', 'true');
                 localStorage.setItem('cloudbox_user_name', savedUserName);
                 localStorage.setItem('cloudbox_user_email', savedEmail);
                 localStorage.setItem('cloudbox_user_initials', savedInitials);
 
-                // Fetch database allocations for user namespace
                 const storedFiles = localStorage.getItem(`cloudbox_files_${savedEmail}`);
                 userFiles = storedFiles ? JSON.parse(storedFiles) : [];
 
@@ -503,11 +533,11 @@
         });
 
         // ==========================================
-        // DYNAMIC PERSISTENT STORAGE CONSOLE LOGIC
+        // STORAGE AND UPLOADS MANAGEMENT
         // ==========================================
         uploadZone.addEventListener('click', () => hiddenFileInput.click());
-
         hiddenFileInput.addEventListener('change', (e) => handleIncomingFiles(e.target.files));
+        
         uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.style.borderColor = 'var(--primary)'; });
         uploadZone.addEventListener('dragleave', () => uploadZone.style.borderColor = '');
         uploadZone.addEventListener('drop', (e) => {
@@ -521,25 +551,38 @@
 
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
+                
+                // Read as text for text/html code previewing, or read as DataURL for bin types
+                const isTextType = file.type.startsWith('text/') || file.name.endsWith('.js') || file.name.endsWith('.css') || file.name.endsWith('.json');
+                
                 reader.onload = function(event) {
+                    const fileContentPayload = event.target.result;
+                    
                     const newFileRecord = {
                         id: 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                         name: file.name,
                         size: file.size,
                         type: file.type || 'application/octet-stream',
                         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                        dataUrl: event.target.result // Base64 Raw Data Payload String
+                        dataUrl: isTextType ? null : fileContentPayload,
+                        textRaw: isTextType ? fileContentPayload : null
                     };
 
                     userFiles.push(newFileRecord);
                     localStorage.setItem(`cloudbox_files_${savedEmail}`, JSON.stringify(userFiles));
                     updateFileDisplayGrid();
                 };
-                reader.readAsDataURL(file);
+
+                if (isTextType) {
+                    reader.readAsText(file);
+                } else {
+                    reader.readAsDataURL(file);
+                }
             });
         }
 
-        function removeFileRecord(id) {
+        function removeFileRecord(id, event) {
+            if(event) event.stopPropagation(); // Stop clicking card background open file preview triggers
             userFiles = userFiles.filter(f => f.id !== id);
             localStorage.setItem(`cloudbox_files_${savedEmail}`, JSON.stringify(userFiles));
             updateFileDisplayGrid();
@@ -551,6 +594,17 @@
             const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Returns specialized system visual representations
+        function getIconForFileType(fileName, type) {
+            if (type.startsWith('image/')) return '<i class="fa-regular fa-image file-icon" style="color: #ec4899;"></i>';
+            if (fileName.endsWith('.html') || fileName.endsWith('.htm')) return '<i class="fa-brands fa-html5 file-icon" style="color: #f97316;"></i>';
+            if (type === 'application/pdf') return '<i class="fa-regular fa-file-pdf file-icon" style="color: #ef4444;"></i>';
+            if (type.startsWith('text/') || fileName.endsWith('.js') || fileName.endsWith('.css') || fileName.endsWith('.json')) {
+                return '<i class="fa-regular fa-file-code file-icon" style="color: #06b6d4;"></i>';
+            }
+            return '<i class="fa-regular fa-file-lines file-icon" style="color: #3b82f6;"></i>';
         }
 
         function updateFileDisplayGrid() {
@@ -569,21 +623,29 @@
 
             userFiles.forEach(file => {
                 combinedByteWeight += file.size;
+                const fileIcon = getIconForFileType(file.name, file.type);
+                
+                // Create object download link representation
+                const dynamicHref = file.dataUrl ? file.dataUrl : 'data:text/plain;charset=utf-8,' + encodeURIComponent(file.textRaw);
 
                 const card = document.createElement('div');
                 card.className = 'file-card';
+                card.setAttribute('onclick', `triggerFilePreview('${file.id}')`);
                 card.innerHTML = `
                     <div class="file-header">
-                        <i class="fa-regular fa-file-lines style="font-size:24px;"></i>
-                        <button class="btn-delete" onclick="removeFileRecord('${file.id}')" title="Delete File">
+                        ${fileIcon}
+                        <button class="btn-delete" onclick="removeFileRecord('${file.id}', event)" title="Delete File">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                     <div class="file-name" title="${file.name}">${file.name}</div>
                     <div class="file-meta">${file.date} • ${formatBytes(file.size)}</div>
-                    <a href="${file.dataUrl}" download="${file.name}" class="btn-download">
-                        <i class="fa-solid fa-circle-down"></i> Download
-                    </a>
+                    <div class="file-actions">
+                        <span class="btn-action"><i class="fa-solid fa-eye"></i> View</span>
+                        <a href="${dynamicHref}" download="${file.name}" class="btn-action" onclick="event.stopPropagation();">
+                            <i class="fa-solid fa-circle-down"></i> Save
+                        </a>
+                    </div>
                 `;
                 fileGridContainer.appendChild(card);
             });
@@ -591,7 +653,78 @@
             storageLabel.textContent = `${formatBytes(combinedByteWeight)} uploaded`;
         }
 
-        // Resend Verification Code Token link
+        // ==========================================
+        // MODAL INTERACTIVE CORE RENDERING VIEW
+        // ==========================================
+        function triggerFilePreview(fileId) {
+            const file = userFiles.find(f => f.id === fileId);
+            if (!file) return;
+
+            previewModalTitle.textContent = file.name;
+            previewModalBody.innerHTML = ''; // Wipe container clean
+            
+            const type = file.type;
+            const name = file.name;
+
+            // Type Route Group 1: Native Images
+            if (type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = file.dataUrl;
+                img.className = 'preview-img';
+                previewModalBody.appendChild(img);
+            } 
+            // Type Route Group 2: Executable live HTML views
+            else if (name.endsWith('.html') || name.endsWith('.htm')) {
+                const iframe = document.createElement('iframe');
+                iframe.className = 'preview-iframe';
+                previewModalBody.appendChild(iframe);
+                
+                // Write text content stream safely inside isolated runtime container environment
+                const targetDoc = iframe.contentDocument || iframe.contentWindow.document;
+                targetDoc.open();
+                targetDoc.write(file.textRaw || '');
+                targetDoc.close();
+            } 
+            // Type Route Group 3: Dynamic PDFs
+            else if (type === 'application/pdf') {
+                const objectNode = document.createElement('object');
+                objectNode.data = file.dataUrl;
+                objectNode.type = 'application/pdf';
+                objectNode.className = 'preview-iframe';
+                // Fallback inside object tag if embed breaks
+                objectNode.innerHTML = `<p class="preview-fallback">Direct browser PDF viewing missing. Please save file to access layout manually.</p>`;
+                previewModalBody.appendChild(objectNode);
+            }
+            // Type Route Group 4: Text Strings / Development Files
+            else if (file.textRaw !== null || type.startsWith('text/')) {
+                const txtArea = document.createElement('textarea');
+                txtArea.className = 'preview-text';
+                txtArea.readOnly = true;
+                txtArea.value = file.textRaw || '';
+                previewModalBody.appendChild(txtArea);
+            }
+            // Fallback for non-renderable binaries
+            else {
+                previewModalBody.innerHTML = `
+                    <div class="preview-fallback">
+                        <i class="fa-regular fa-file-excel"></i>
+                        <h3 style="margin-bottom:8px; color:var(--text-main);">No Live Preview Available</h3>
+                        <p style="font-size:14px; margin-bottom:16px;">Direct viewing is not supported for this file type (${type}).</p>
+                        <a href="${file.dataUrl}" download="${file.name}" class="btn-submit" style="width:max-content; margin:0 auto; padding:10px 20px;">
+                            <i class="fa-solid fa-download"></i> Download to Device
+                        </a>
+                    </div>`;
+            }
+
+            previewModal.classList.remove('hidden');
+        }
+
+        // Close View Actions
+        closePreviewBtn.addEventListener('click', () => previewModal.classList.add('hidden'));
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) previewModal.classList.add('hidden');
+        });
+
         document.getElementById('resendCodeLink').addEventListener('click', (e) => {
             e.preventDefault();
             currentGeneratedCode = generateNineDigitCode();
@@ -599,15 +732,12 @@
             alert(`A fresh security token has been dispatched to ${savedEmail}.`);
         });
 
-        // Session Destruction / Logout Routine
         document.getElementById('userProfileDropdown').addEventListener('click', () => {
             if(confirm("Do you want to secure sign out?")) {
                 localStorage.removeItem('cloudbox_session_active');
                 localStorage.removeItem('cloudbox_user_name');
                 localStorage.removeItem('cloudbox_user_email');
                 localStorage.removeItem('cloudbox_user_initials');
-                
-                // Soft reload to clear dynamic variables
                 window.location.reload();
             }
         });
